@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pomodoro • Sylea Studio</title>
+
+  <!-- Styling -->
+  <style>
+    :root{
+      --bg: #F4E8D2;
+      --fg: #1C1D22;
+      --accent: #1C1D22;
+      --glass: rgba(255,255,255,0.6);
+      --radius: 14px;
+      --shadow: 0 6px 20px rgba(28,29,34,0.08);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+      --ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: var(--ui);
+      background: var(--bg);
+      color: var(--fg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+      box-sizing:border-box;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.9));
+      border-radius: var(--radius);
+      padding:28px;
+      max-width:720px;
+      width:100%;
+      box-shadow: var(--shadow);
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:20px;
+      align-items:center;
+    }
+
+    @media (max-width:760px){
+      .card{ grid-template-columns: 1fr; padding:20px; }
+    }
+
+    .header{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-bottom:8px;
+    }
+
+    .brand{
+      width:44px;
+      height:44px;
+      border-radius:10px;
+      background: linear-gradient(135deg, rgba(28,29,34,0.06), rgba(28,29,34,0.02));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      color:var(--fg);
+      font-size:16px;
+      box-shadow: 0 4px 12px rgba(28,29,34,0.04) inset;
+    }
+
+    h1{
+      font-size:18px;
+      margin:0;
+      font-weight:600;
+    }
+
+    p.lead{
+      margin:6px 0 18px 0;
+      font-size:13px;
+      color: rgba(28,29,34,0.75);
+    }
+
+    /* TIMER LEFT (circle) */
+    .left{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
+    }
+
+    .timer-display{
+      width:260px;
+      height:260px;
+      display:grid;
+      place-items:center;
+      position:relative;
+    }
+
+    /* circular progress */
+    svg.progress{
+      width:100%;
+      height:100%;
+      transform: rotate(-90deg);
+      display:block;
+    }
+
+    .time-label{
+      position:absolute;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:4px;
+      transform: translateY(-6px);
+    }
+
+    .time-label .big{
+      font-size:48px;
+      font-weight:700;
+      letter-spacing:1px;
+      color:var(--fg);
+      font-family: var(--mono);
+    }
+
+    .time-label .small{
+      font-size:13px;
+      color: rgba(28,29,34,0.7);
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      margin-top:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+
+    button.btn{
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding:10px 16px;
+      border-radius:10px;
+      font-weight:600;
+      cursor:pointer;
+      min-width:100px;
+      box-shadow: 0 6px 16px rgba(28,29,34,0.12);
+      transition: transform .12s ease, box-shadow .12s ease, opacity .12s;
+    }
+    button.btn:active{ transform: translateY(1px) scale(.998); }
+    button.ghost{
+      background: transparent;
+      color: var(--fg);
+      border: 1px solid rgba(28,29,34,0.08);
+      box-shadow:none;
+    }
+
+    /* RIGHT (settings, progress, logs) */
+    .right{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .section{
+      background: rgba(255,255,255,0.6);
+      padding:14px;
+      border-radius:12px;
+      box-shadow: 0 6px 18px rgba(28,29,34,0.04);
+    }
+
+    .section h3{
+      margin:0 0 8px 0;
+      font-size:13px;
+      color:var(--fg);
+    }
+
+    .flex-row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .input-group{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    input[type="number"]{
+      width:76px;
+      padding:8px 10px;
+      border-radius:8px;
+      border:1px solid rgba(28,29,34,0.08);
+      font-weight:600;
+      text-align:center;
+      font-size:14px;
+      color:var(--fg);
+      background:transparent;
+    }
+
+    label{
+      font-size:13px;
+      color: rgba(28,29,34,0.8);
+      display:flex;
+      gap:6px;
+      align-items:center;
+    }
+
+    /* small toggles */
+    .toggle{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    .progress-list{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-start;
+      flex-wrap:wrap;
+    }
+
+    .mini{
+      font-size:12px;
+      color: rgba(28,29,34,0.75);
+    }
+
+    /* session log */
+    .log{
+      max-height:120px;
+      overflow:auto;
+      padding-right:6px;
+    }
+
+    .log-item{
+      font-size:13px;
+      padding:8px 6px;
+      border-radius:8px;
+      background: rgba(28,29,34,0.03);
+      margin-bottom:8px;
+      color:var(--fg);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    footer.attribution{
+      text-align:center;
+      margin-top:8px;
+      font-size:12px;
+      color: rgba(28,29,34,0.65);
+    }
+
+    /* accessibility focus */
+    button:focus, input:focus { outline: 3px solid rgba(28,29,34,0.08); outline-offset:2px; }
+
+    /* small helpers */
+    .muted{ color: rgba(28,29,34,0.6); font-size:13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <main class="card" role="main" aria-labelledby="main-title">
+      <!-- LEFT: timer visual -->
+      <section class="left" aria-label="Main timer">
+        <div class="header" aria-hidden="true">
+          <div class="brand" title="Sylea">SS</div>
+          <div>
+            <h1 id="main-title">Pomodoro • Sylea Studio</h1>
+            <p class="lead">Focus on short sessions.</p>
+          </div>
+        </div>
+
+        <div class="timer-display" role="region" aria-live="polite" aria-atomic="true">
+          <!-- SVG circular progress -->
+          <svg class="progress" viewBox="0 0 120 120" aria-hidden="true">
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#1C1D22" stop-opacity="0.95"></stop>
+                <stop offset="100%" stop-color="#1C1D22" stop-opacity="0.6"></stop>
+              </linearGradient>
+            </defs>
+
+            <!-- background circle -->
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(28,29,34,0.06)" stroke-width="14"></circle>
+            <!-- progress circle -->
+            <circle id="progressCircle" cx="60" cy="60" r="50" fill="none" stroke="url(#g1)" stroke-width="14" stroke-linecap="round" stroke-dasharray="314.159" stroke-dashoffset="314.159"></circle>
+          </svg>
+
+          <!-- time text -->
+          <div class="time-label" id="timeLabel">
+            <div class="big" id="time">25:00</div>
+            <div class="small" id="sessionType">Session</div>
+          </div>
+        </div>
+
+        <div class="controls" role="group" aria-label="Timer controls">
+          <button id="startBtn" class="btn" aria-pressed="false">Start</button>
+          <button id="pauseBtn" class="btn ghost" disabled>Pause</button>
+          <button id="resetBtn" class="btn ghost" aria-label="Reset timer">Reset</button>
+        </div>
+      </section>
+
+      <!-- RIGHT: settings + log -->
+      <aside class="right" aria-label="Settings">
+        <div class="section" aria-hidden="false">
+          <h3>Settings</h3>
+          <div class="flex-row">
+            <label>
+              <span class="mini">Session duration (min)</span>
+              <input type="number" id="workInput" min="1" max="180" value="25" aria-label="Session duration in minutes">
+            </label>
+
+            <label>
+              <span class="mini">Short break (min)</span>
+              <input type="number" id="shortInput" min="1" max="60" value="5" aria-label="Short break duration in minutes">
+            </label>
+
+            <label>
+              <span class="mini">Long break (min)</span>
+              <input type="number" id="longInput" min="1" max="60" value="15" aria-label="Long break duration in minutes">
+            </label>
+          </div>
+
+          <div style="margin-top:10px;" class="flex-row">
+            <div class="input-group">
+              <label class="mini">Cycles before long break
+                <input type="number" id="cyclesInput" min="1" max="10" value="4" aria-label="Cycles before long break">
+              </label>
+            </div>
+
+            <div class="toggle small" title="Enable sound">
+              <label for="soundToggle" class="mini">Sound</label>
+              <input id="soundToggle" type="checkbox" checked aria-label="Enable session end sounds">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="section" aria-hidden="false">
+          <h3>Progress bar</h3>
+          <div class="progress-list" id="progressDots" aria-hidden="false" role="list">
+            <!-- dynamic -->
+          </div>
+          <div class="muted" style="margin-top:8px;">Each dot represents a completed session.</div>
+        </div>
+
+        <div class="section">
+          <h3>Session log</h3>
+          <div class="log" id="logBox" aria-live="polite"></div>
+        </div>
+
+        <div class="section" style="text-align:center;">
+          <button id="quick25" class="btn ghost" title="Quick 25 minutes">Quick 25</button>
+          <button id="quick52" class="btn ghost" title="Quick 52 minutes">Quick 52</button>
+        </div>
+
+        <footer class="attribution">Minimal Pomodoro • <strong>Sylea Studio</strong></footer>
+      </aside>
+    </main>
+  </div>
+
+  <!-- AUDIO (base64 tiny beep) -->
+  <audio id="beep" preload="auto">
+    <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=" type="audio/wav">
+  </audio>
+
+  <!-- Script -->
+  <script>
+    // COLORS from user
+    const COLOR_BG = '#F4E8D2';
+    const COLOR_FG = '#1C1D22';
+
+    // Elements
+    const timeEl = document.getElementById('time');
+    const typeEl = document.getElementById('sessionType');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const workInput = document.getElementById('workInput');
+    const shortInput = document.getElementById('shortInput');
+    const longInput = document.getElementById('longInput');
+    const cyclesInput = document.getElementById('cyclesInput');
+    const soundToggle = document.getElementById('soundToggle');
+    const progressCircle = document.getElementById('progressCircle');
+    const progressDots = document.getElementById('progressDots');
+    const logBox = document.getElementById('logBox');
+    const quick25 = document.getElementById('quick25');
+    const quick52 = document.getElementById('quick52');
+    const beep = document.getElementById('beep');
+
+    // State
+    let timer = null;
+    let totalSeconds = 25 * 60; // default
+    let remainingSeconds = totalSeconds;
+    let running = false;
+    let mode = 'work'; // 'work' | 'short' | 'long'
+    let cyclesCompleted = 0;
+    let sessionCount = 0;
+
+    // Circle constants (circumference)
+    const R = 50;
+    const CIRC = 2 * Math.PI * R;
+    progressCircle.setAttribute('stroke-dasharray', CIRC.toString());
+    progressCircle.setAttribute('stroke-dashoffset', CIRC.toString());
+
+    function formatTime(seconds){
+      const s = Math.max(0, Math.floor(seconds));
+      const mins = Math.floor(s / 60);
+      const secs = s - (mins * 60);
+      const mm = String(mins).padStart(2,'0');
+      const ss = String(secs).padStart(2,'0');
+      return mm + ':' + ss;
+    }
+
+    function updateUI(){
+      timeEl.textContent = formatTime(remainingSeconds);
+      const fraction = (totalSeconds === 0) ? 0 : (1 - (remainingSeconds / totalSeconds));
+      const offset = CIRC * (1 - fraction);
+      progressCircle.style.transition = running ? 'stroke-dashoffset 0.3s linear' : 'none';
+      progressCircle.setAttribute('stroke-dashoffset', Math.max(0, Math.min(CIRC, offset)));
+      const label = (mode === 'work') ? 'Session' : (mode === 'short') ? 'Short break' : 'Long break';
+      typeEl.textContent = label;
+      startBtn.textContent = running ? 'Running' : 'Start';
+      startBtn.setAttribute('aria-pressed', running ? 'true' : 'false');
+      pauseBtn.disabled = !running;
+    }
+
+    function playBeep(){
+      if(!soundToggle.checked) return;
+      try{
+        beep.currentTime = 0;
+        beep.play().catch(()=>{});
+      }catch(e){}
+    }
+
+    function addLog(text){
+      const it = document.createElement('div');
+      it.className = 'log-item';
+      const timeStamp = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      it.innerHTML = '<span>'+text+'</span><span class="muted">'+timeStamp+'</span>';
+      logBox.prepend(it);
+      if(logBox.children.length > 50) { logBox.removeChild(logBox.lastChild); }
+    }
+
+    function renderDots(){
+      progressDots.innerHTML = '';
+      const needed = Math.max(1, parseInt(cyclesInput.value,10) || 4);
+      for(let i=0;i<needed;i++){
+        const dot = document.createElement('div');
+        dot.style.width = '14px';
+        dot.style.height = '14px';
+        dot.style.borderRadius = '999px';
+        dot.style.background = (i < sessionCount % needed) ? COLOR_FG : 'rgba(28,29,34,0.08)';
+        dot.title = 'Session ' + (i+1);
+        progressDots.appendChild(dot);
+      }
+    }
+
+    function startTimer(){
+      if(running) return;
+      running = true;
+      pauseBtn.disabled = false;
+      updateUI();
+
+      let lastTick = Date.now();
+      timer = setInterval(() => {
+        const now = Date.now();
+        remainingSeconds -= (now - lastTick)/1000.0;
+        lastTick = now;
+
+        if(remainingSeconds <= 0){
+          clearInterval(timer);
+          timer = null;
+          running = false;
+          remainingSeconds = 0;
+          updateUI();
+          playBeep();
+
+          if(mode === 'work'){
+            sessionCount += 1;
+            addLog('Work session completed');
+            renderDots();
+            const cycles = Math.max(1, parseInt(cyclesInput.value,10) || 4);
+            if(sessionCount % cycles === 0){
+              mode = 'long';
+              totalSeconds = (parseInt(longInput.value,10) || 15) * 60;
+            } else {
+              mode = 'short';
+              totalSeconds = (parseInt(shortInput.value,10) || 5) * 60;
+            }
+            remainingSeconds = totalSeconds;
+            startTimer();
+          } else {
+            if(mode === 'short') addLog('Short break finished');
+            if(mode === 'long') addLog('Long break finished');
+            mode = 'work';
+            totalSeconds = (parseInt(workInput.value,10) || 25) * 60;
+            remainingSeconds = totalSeconds;
+            startTimer();
+          }
+        } else {
+          updateUI();
+        }
+      }, 250);
+    }
+
+    function pauseTimer(){
+      if(timer){ clearInterval(timer); timer = null; }
+      running = false;
+      pauseBtn.disabled = true;
+      updateUI();
+      addLog('Timer paused');
+    }
+
+    function resetTimer(hard=false){
+      if(timer){ clearInterval(timer); timer = null; }
+      running = false;
+      sessionCount = hard ? 0 : sessionCount;
+      mode = 'work';
+      totalSeconds = (parseInt(workInput.value,10) || 25) * 60;
+      remainingSeconds = totalSeconds;
+      updateUI();
+      renderDots();
+      addLog('Timer reset' + (hard ? ' (hard)' : ''));
+    }
+
+    [workInput, shortInput, longInput, cyclesInput].forEach(inp => {
+      inp.addEventListener('change', () => {
+        const val = Math.max(1, Math.floor(Number(inp.value) || 1));
+        inp.value = val;
+        if(!running){
+          totalSeconds = (parseInt(workInput.value,10) || 25) * 60;
+          remainingSeconds = totalSeconds;
+          updateUI();
+        }
+        renderDots();
+      });
+    });
+
+    startBtn.addEventListener('click', () => {
+      if(!running){
+        if(remainingSeconds <= 0){
+          totalSeconds = (mode === 'work' ? parseInt(workInput.value,10) : parseInt(shortInput.value,10)) * 60;
+          remainingSeconds = totalSeconds;
+        }
+        startTimer();
+        addLog('Started');
+      }
+    });
+
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', () => resetTimer());
+
+    quick25.addEventListener('click', ()=> {
+      if(timer){ clearInterval(timer); timer=null; running=false; }
+      mode = 'work';
+      workInput.value = 25;
+      totalSeconds = 25 * 60;
+      remainingSeconds = totalSeconds;
+      updateUI();
+      addLog('Quick 25 set');
+    });
+
+    quick52.addEventListener('click', ()=> {
+      if(timer){ clearInterval(timer); timer=null; running=false; }
+      mode = 'work';
+      workInput.value = 52;
+      totalSeconds = 52 * 60;
+      remainingSeconds = totalSeconds;
+      updateUI();
+      addLog('Quick 52 set');
+    });
+
+    document.addEventListener('keydown', (e)=>{
+      if(e.code === 'Space'){
+        e.preventDefault();
+        if(running) pauseTimer();
+        else startTimer();
+      }
+    });
+
+    function init(){
+      document.querySelectorAll('button.btn').forEach(b => {
+        if(b.classList.contains('ghost')){
+          b.style.color = COLOR_FG;
+          b.style.background = 'transparent';
+          b.style.border = '1px solid rgba(28,29,34,0.06)';
+        } else {
+          b.style.background = COLOR_FG;
+          b.style.color = '#fff';
+        }
+      });
+      document.body.style.background = COLOR_BG;
+      totalSeconds = (parseInt(workInput.value,10) || 25) * 60;
+      remainingSeconds = totalSeconds;
+      renderDots();
+      updateUI();
+    }
+
+    init();
+
+    document.addEventListener('visibilitychange', () => {
+      if(document.visibilityState === 'hidden' && running){}
+    });
+  </script>
+</body>
+</html>
