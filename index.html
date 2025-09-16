@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pomodoro • Sylea Studio</title>
 
+  <!-- Google Fonts: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
   <!-- Styling -->
   <style>
     :root{
@@ -14,8 +17,8 @@
       --glass: rgba(255,255,255,0.6);
       --radius: 14px;
       --shadow: 0 6px 20px rgba(28,29,34,0.08);
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
-      --ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      --mono: 'Poppins', ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+      --ui: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
 
     html,body{
@@ -111,6 +114,7 @@
       display:block;
     }
 
+    /* TIME LABEL */
     .time-label{
       position:absolute;
       display:flex;
@@ -118,6 +122,7 @@
       align-items:center;
       gap:4px;
       transform: translateY(-6px);
+      font-family: 'Poppins', sans-serif; /* font morbido */
     }
 
     .time-label .big{
@@ -125,7 +130,6 @@
       font-weight:700;
       letter-spacing:1px;
       color:var(--fg);
-      font-family: var(--mono);
     }
 
     .time-label .small{
@@ -161,7 +165,6 @@
       box-shadow:none;
     }
 
-    /* RIGHT (settings, progress, logs) */
     .right{
       display:flex;
       flex-direction:column;
@@ -215,7 +218,6 @@
       align-items:center;
     }
 
-    /* small toggles */
     .toggle{
       display:inline-flex;
       gap:8px;
@@ -235,7 +237,6 @@
       color: rgba(28,29,34,0.75);
     }
 
-    /* session log */
     .log{
       max-height:120px;
       overflow:auto;
@@ -261,17 +262,14 @@
       color: rgba(28,29,34,0.65);
     }
 
-    /* accessibility focus */
     button:focus, input:focus { outline: 3px solid rgba(28,29,34,0.08); outline-offset:2px; }
-
-    /* small helpers */
     .muted{ color: rgba(28,29,34,0.6); font-size:13px; }
+
   </style>
 </head>
 <body>
   <div class="wrap">
     <main class="card" role="main" aria-labelledby="main-title">
-      <!-- LEFT: timer visual -->
       <section class="left" aria-label="Main timer">
         <div class="header" aria-hidden="true">
           <div class="brand" title="Sylea">SS</div>
@@ -282,7 +280,6 @@
         </div>
 
         <div class="timer-display" role="region" aria-live="polite" aria-atomic="true">
-          <!-- SVG circular progress -->
           <svg class="progress" viewBox="0 0 120 120" aria-hidden="true">
             <defs>
               <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
@@ -290,14 +287,9 @@
                 <stop offset="100%" stop-color="#1C1D22" stop-opacity="0.6"></stop>
               </linearGradient>
             </defs>
-
-            <!-- background circle -->
             <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(28,29,34,0.06)" stroke-width="14"></circle>
-            <!-- progress circle -->
             <circle id="progressCircle" cx="60" cy="60" r="50" fill="none" stroke="url(#g1)" stroke-width="14" stroke-linecap="round" stroke-dasharray="314.159" stroke-dashoffset="314.159"></circle>
           </svg>
-
-          <!-- time text -->
           <div class="time-label" id="timeLabel">
             <div class="big" id="time">25:00</div>
             <div class="small" id="sessionType">Session</div>
@@ -311,47 +303,39 @@
         </div>
       </section>
 
-      <!-- RIGHT: settings + log -->
       <aside class="right" aria-label="Settings">
         <div class="section" aria-hidden="false">
           <h3>Settings</h3>
           <div class="flex-row">
             <label>
-              <span class="mini">Session duration (min)</span>
-              <input type="number" id="workInput" min="1" max="180" value="25" aria-label="Session duration in minutes">
+              <span class="mini">Work duration (min)</span>
+              <input type="number" id="workInput" min="1" max="180" value="25" aria-label="Work duration in minutes">
             </label>
-
             <label>
               <span class="mini">Short break (min)</span>
-              <input type="number" id="shortInput" min="1" max="60" value="5" aria-label="Short break duration in minutes">
+              <input type="number" id="shortInput" min="1" max="60" value="5" aria-label="Short break duration">
             </label>
-
             <label>
               <span class="mini">Long break (min)</span>
-              <input type="number" id="longInput" min="1" max="60" value="15" aria-label="Long break duration in minutes">
+              <input type="number" id="longInput" min="1" max="60" value="15" aria-label="Long break duration">
             </label>
           </div>
-
           <div style="margin-top:10px;" class="flex-row">
             <div class="input-group">
               <label class="mini">Cycles before long break
                 <input type="number" id="cyclesInput" min="1" max="10" value="4" aria-label="Cycles before long break">
               </label>
             </div>
-
             <div class="toggle small" title="Enable sound">
               <label for="soundToggle" class="mini">Sound</label>
               <input id="soundToggle" type="checkbox" checked aria-label="Enable session end sounds">
             </div>
           </div>
-
         </div>
 
         <div class="section" aria-hidden="false">
           <h3>Progress bar</h3>
-          <div class="progress-list" id="progressDots" aria-hidden="false" role="list">
-            <!-- dynamic -->
-          </div>
+          <div class="progress-list" id="progressDots" aria-hidden="false" role="list"></div>
           <div class="muted" style="margin-top:8px;">Each dot represents a completed session.</div>
         </div>
 
@@ -370,18 +354,13 @@
     </main>
   </div>
 
-  <!-- AUDIO (base64 tiny beep) -->
   <audio id="beep" preload="auto">
     <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=" type="audio/wav">
   </audio>
 
-  <!-- Script -->
   <script>
-    // COLORS from user
     const COLOR_BG = '#F4E8D2';
     const COLOR_FG = '#1C1D22';
-
-    // Elements
     const timeEl = document.getElementById('time');
     const typeEl = document.getElementById('sessionType');
     const startBtn = document.getElementById('startBtn');
@@ -399,16 +378,14 @@
     const quick52 = document.getElementById('quick52');
     const beep = document.getElementById('beep');
 
-    // State
     let timer = null;
-    let totalSeconds = 25 * 60; // default
+    let totalSeconds = 25 * 60;
     let remainingSeconds = totalSeconds;
     let running = false;
-    let mode = 'work'; // 'work' | 'short' | 'long'
+    let mode = 'work';
     let cyclesCompleted = 0;
     let sessionCount = 0;
 
-    // Circle constants (circumference)
     const R = 50;
     const CIRC = 2 * Math.PI * R;
     progressCircle.setAttribute('stroke-dasharray', CIRC.toString());
@@ -429,8 +406,7 @@
       const offset = CIRC * (1 - fraction);
       progressCircle.style.transition = running ? 'stroke-dashoffset 0.3s linear' : 'none';
       progressCircle.setAttribute('stroke-dashoffset', Math.max(0, Math.min(CIRC, offset)));
-      const label = (mode === 'work') ? 'Session' : (mode === 'short') ? 'Short break' : 'Long break';
-      typeEl.textContent = label;
+      typeEl.textContent = (mode === 'work') ? 'Session' : (mode === 'short') ? 'Short break' : 'Long break';
       startBtn.textContent = running ? 'Running' : 'Start';
       startBtn.setAttribute('aria-pressed', running ? 'true' : 'false');
       pauseBtn.disabled = !running;
@@ -438,10 +414,7 @@
 
     function playBeep(){
       if(!soundToggle.checked) return;
-      try{
-        beep.currentTime = 0;
-        beep.play().catch(()=>{});
-      }catch(e){}
+      try{ beep.currentTime = 0; beep.play().catch(()=>{}); }catch(e){}
     }
 
     function addLog(text){
@@ -472,147 +445,50 @@
       running = true;
       pauseBtn.disabled = false;
       updateUI();
-
       let lastTick = Date.now();
       timer = setInterval(() => {
         const now = Date.now();
-        remainingSeconds -= (now - lastTick)/1000.0;
+        const elapsedMs = now - lastTick;
+        remainingSeconds -= elapsedMs / 1000.0;
         lastTick = now;
-
         if(remainingSeconds <= 0){
-          clearInterval(timer);
-          timer = null;
-          running = false;
-          remainingSeconds = 0;
-          updateUI();
-          playBeep();
-
+          clearInterval(timer); timer = null; running = false; remainingSeconds = 0;
+          updateUI(); playBeep();
           if(mode === 'work'){
-            sessionCount += 1;
-            addLog('Work session completed');
-            renderDots();
+            sessionCount += 1; addLog('Work session completed'); renderDots();
             const cycles = Math.max(1, parseInt(cyclesInput.value,10) || 4);
-            if(sessionCount % cycles === 0){
-              mode = 'long';
-              totalSeconds = (parseInt(longInput.value,10) || 15) * 60;
-            } else {
-              mode = 'short';
-              totalSeconds = (parseInt(shortInput.value,10) || 5) * 60;
-            }
-            remainingSeconds = totalSeconds;
-            startTimer();
+            if(sessionCount % cycles === 0){ mode = 'long'; totalSeconds = (parseInt(longInput.value,10)||15)*60; }
+            else { mode = 'short'; totalSeconds = (parseInt(shortInput.value,10)||5)*60; }
+            remainingSeconds = totalSeconds; startTimer();
           } else {
-            if(mode === 'short') addLog('Short break finished');
-            if(mode === 'long') addLog('Long break finished');
-            mode = 'work';
-            totalSeconds = (parseInt(workInput.value,10) || 25) * 60;
-            remainingSeconds = totalSeconds;
-            startTimer();
+            if(mode==='short') addLog('Short break finished');
+            if(mode==='long') addLog('Long break finished');
+            mode='work'; totalSeconds=(parseInt(workInput.value,10)||25)*60; remainingSeconds=totalSeconds; startTimer();
           }
-        } else {
-          updateUI();
-        }
+        } else { updateUI(); }
       }, 250);
     }
 
-    function pauseTimer(){
-      if(timer){ clearInterval(timer); timer = null; }
-      running = false;
-      pauseBtn.disabled = true;
-      updateUI();
-      addLog('Timer paused');
-    }
+    function pauseTimer(){ if(timer){clearInterval(timer); timer=null;} running=false; pauseBtn.disabled=true; updateUI(); addLog('Timer paused'); }
+    function resetTimer(hard=false){ if(timer){clearInterval(timer); timer=null;} running=false; sessionCount=hard?0:sessionCount; mode='work'; totalSeconds=(parseInt(workInput.value,10)||25)*60; remainingSeconds=totalSeconds; updateUI(); renderDots(); addLog('Timer reset'+(hard?' (hard)':'')); }
 
-    function resetTimer(hard=false){
-      if(timer){ clearInterval(timer); timer = null; }
-      running = false;
-      sessionCount = hard ? 0 : sessionCount;
-      mode = 'work';
-      totalSeconds = (parseInt(workInput.value,10) || 25) * 60;
-      remainingSeconds = totalSeconds;
-      updateUI();
-      renderDots();
-      addLog('Timer reset' + (hard ? ' (hard)' : ''));
-    }
+    [workInput,shortInput,longInput,cyclesInput].forEach(inp=>{inp.addEventListener('change',()=>{ const val=Math.max(1,Math.floor(Number(inp.value)||1)); inp.value=val; if(!running){ totalSeconds=(parseInt(workInput.value,10)||25)*60; remainingSeconds=totalSeconds; updateUI(); } renderDots(); });});
 
-    [workInput, shortInput, longInput, cyclesInput].forEach(inp => {
-      inp.addEventListener('change', () => {
-        const val = Math.max(1, Math.floor(Number(inp.value) || 1));
-        inp.value = val;
-        if(!running){
-          totalSeconds = (parseInt(workInput.value,10) || 25) * 60;
-          remainingSeconds = totalSeconds;
-          updateUI();
-        }
-        renderDots();
-      });
-    });
+    startBtn.addEventListener('click',()=>{ if(!running){ if(remainingSeconds<=0){ totalSeconds=(mode==='work'?parseInt(workInput.value,10):parseInt(shortInput.value,10))*60; remainingSeconds=totalSeconds; } startTimer(); addLog('Started'); }});
+    pauseBtn.addEventListener('click',pauseTimer);
+    resetBtn.addEventListener('click',()=>resetTimer());
+    quick25.addEventListener('click',()=>{if(timer){clearInterval(timer);timer=null;running=false;}mode='work';workInput.value=25;totalSeconds=25*60;remainingSeconds=totalSeconds;updateUI();addLog('Quick 25 set');});
+    quick52.addEventListener('click',()=>{if(timer){clearInterval(timer);timer=null;running=false;}mode='work';workInput.value=52;totalSeconds=52*60;remainingSeconds=totalSeconds;updateUI();addLog('Quick 52 set');});
 
-    startBtn.addEventListener('click', () => {
-      if(!running){
-        if(remainingSeconds <= 0){
-          totalSeconds = (mode === 'work' ? parseInt(workInput.value,10) : parseInt(shortInput.value,10)) * 60;
-          remainingSeconds = totalSeconds;
-        }
-        startTimer();
-        addLog('Started');
-      }
-    });
-
-    pauseBtn.addEventListener('click', pauseTimer);
-    resetBtn.addEventListener('click', () => resetTimer());
-
-    quick25.addEventListener('click', ()=> {
-      if(timer){ clearInterval(timer); timer=null; running=false; }
-      mode = 'work';
-      workInput.value = 25;
-      totalSeconds = 25 * 60;
-      remainingSeconds = totalSeconds;
-      updateUI();
-      addLog('Quick 25 set');
-    });
-
-    quick52.addEventListener('click', ()=> {
-      if(timer){ clearInterval(timer); timer=null; running=false; }
-      mode = 'work';
-      workInput.value = 52;
-      totalSeconds = 52 * 60;
-      remainingSeconds = totalSeconds;
-      updateUI();
-      addLog('Quick 52 set');
-    });
-
-    document.addEventListener('keydown', (e)=>{
-      if(e.code === 'Space'){
-        e.preventDefault();
-        if(running) pauseTimer();
-        else startTimer();
-      }
-    });
+    document.addEventListener('keydown',(e)=>{if(e.code==='Space'){e.preventDefault();if(running)pauseTimer();else startTimer();}});
 
     function init(){
-      document.querySelectorAll('button.btn').forEach(b => {
-        if(b.classList.contains('ghost')){
-          b.style.color = COLOR_FG;
-          b.style.background = 'transparent';
-          b.style.border = '1px solid rgba(28,29,34,0.06)';
-        } else {
-          b.style.background = COLOR_FG;
-          b.style.color = '#fff';
-        }
-      });
-      document.body.style.background = COLOR_BG;
-      totalSeconds = (parseInt(workInput.value,10) || 25) * 60;
-      remainingSeconds = totalSeconds;
-      renderDots();
-      updateUI();
+      document.querySelectorAll('button.btn').forEach(b=>{if(b.classList.contains('ghost')){b.style.color=COLOR_FG;b.style.background='transparent';b.style.border='1px solid rgba(28,29,34,0.06)';}else{b.style.background=COLOR_FG;b.style.color='#fff';}});
+      document.body.style.background=COLOR_BG; totalSeconds=(parseInt(workInput.value,10)||25)*60; remainingSeconds=totalSeconds; renderDots(); updateUI();
     }
 
     init();
-
-    document.addEventListener('visibilitychange', () => {
-      if(document.visibilityState === 'hidden' && running){}
-    });
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&running){}});
   </script>
 </body>
 </html>
